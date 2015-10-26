@@ -254,24 +254,24 @@ To give users the ability to sign up and log in to our site, we'll need:
   // user.js
 
   // create a new user with secure (hashed) password
-  userSchema.statics.createSecure = function (email, password, callback) {
-    // `this` references our schema
-    // store it in variable `user` because `this` changes context in nested callbacks
+  UserSchema.statics.createSecure = function (email, password, callback) {
+  // `this` references our user model, since this function will be called from the model itself
+  // store it in variable `UserModel` because `this` changes context in nested callbacks
 
-    var user = this;
+  var UserModel = this;
 
-    // hash password user enters at sign up
-    bcrypt.genSalt(function (err, salt) {
-      bcrypt.hash(password, salt, function (err, hash) {
-        console.log(hash);
+  // hash password user enters at sign up
+  bcrypt.genSalt(function (err, salt) {
+    console.log('salt: ', salt);  // changes every time
+    bcrypt.hash(password, salt, function (err, hash) {
 
-        // create the new user (save to db) with hashed password
-        user.create({
-          email: email,
-          passwordDigest: hash
-        }, callback);
-      });
+      // create the new user (save to db) with hashed password
+      UserModel.create({
+        email: email,
+        passwordDigest: hash
+      }, callback);
     });
+   });
   };
   ```
   
@@ -398,6 +398,7 @@ To give users the ability to sign up and log in to our site, we'll need:
    // authenticate user (when user logs in)
    userSchema.statics.authenticate = function (email, password, callback) {
      // find user by email entered at log in
+     // remember `this` refers to the User for methods defined on userSchema.statics
      this.findOne({email: email}, function (err, foundUser) {
        console.log(foundUser);
  
