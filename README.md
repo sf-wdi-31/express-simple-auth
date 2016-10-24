@@ -1,23 +1,74 @@
-# Authentication with Express & Bcrypt
+<!--
+Creator: DC Team
+Last Edited by: Brianna
+Location: SF
+-->
 
-| Objectives |
-| :--- |
-| Implement a password **authentication** strategy with bcrypt |
-| Save a logged-in user's data to the session |
-| Implement routes for a user to sign up, log in,  and log out |
+![](https://ga-dash.s3.amazonaws.com/production/assets/logo-9f88ae6c9c3871690e33280fcf557f33.png)
 
-## Authentication & Authorization
+# Local Auth with Express and Bcrypt
 
-* **Authentication** verifies that a user is who they say they are. When a user logs into our site, we *authenticate* them by checking that the password they typed in matches the password we have stored for them.
-* **Authorization** is the process of determining whether or not a user has *permission* to perform certain actions on our site. For example, a user may *be authorized* to view their profile page and edit their own blog posts, but not to edit another user's blog posts.
+### Why is this important?
+<!-- framing the "why" in big-picture/real world examples -->
+*This workshop is important because:*
 
-## Why do we hash (and salt) passwords?
+Controlling access to data is a key part of many modern web applications. Rails does a lot of the work of authentication and authorization for us behind the scenes.  Today we'll see that Rails's "local" (in-app) authentication strategy generalizes to other languages and frameworks. We'll create a "hand-made" version of authentication in an Express app. 
 
-In order to authenticate a user, we need to store their password in our database. This allows us to check that the user typed in the correct password when logging into our site.
 
-The downside is that if anyone ever got access to our database, they would also have access to all of our users' login information. We use a <a href="https://crackstation.net/hashing-security.htm#normalhashing" target="_blank">hashing algorithm</a> to avoid storing plain-text passwords in the database. We also use a <a href="https://crackstation.net/hashing-security.htm#salt" target="_blank">salt</a> to randomize the hashing algorithm, providing extra security against potential attacks.
+### What are the objectives?
+<!-- specific/measurable goal for students to achieve -->
+*After this workshop, developers will be able to:*
 
-![](http://memeshare.net/memes/1/604.png)
+* Explain key steps of a framework-independent local authentication strategy.
+* Authenticate users in Express.
+* Restrict access to data based on whether a user is authenticated.
+* Describe alternate authentication or authorization strategies.
+
+### Where should we be now?
+<!-- call out the skills that are prerequisites -->
+*Before this workshop, developers should already be able to:*
+
+* Implement client-side forms and AJAX calls.
+* Create an express application with RESTful routes.
+* Set up schemas and models with Mongoose.
+* CRUD data in a MongoDB database through Mongoose.  
+* Describe the authentication strategy used with `has_secure_password` from Ruby on Rails.
+
+
+### Local Authentication
+
+Modern web developers can choose from a variety of strategies to authenticate users. The tactic of checking a username and password combination within your own app is called "local" authentication. Password-based local authentication is one of the oldest widely-used authentication schemes for the web. It can be more or less secure depending on how you store and send the usernames and passwords. 
+
+Password-based authentication is the heart of what we saw with Ruby on Rails, and it's what we'll build today.  We'll also see how to create Express middleware to easily manage authorization in an Express app. 
+
+
+> Recall:  
+>  * _**Authentication** verifies that a user is who they say they are. When a user logs into our site, we *authenticate* them by checking that the password they typed in matches the password we have stored for them._   
+>  * _**Authorization** is the process of determining whether or not a user has *permission* to perform certain actions on our site. For example, a user may *be authorized* to view their profile page and edit their own blog posts, but not to edit another user's blog posts._
+ 
+
+
+
+
+### Review: Rails Strategy
+
+What was the strategy we used to authenticate users with Ruby on Rails?
+
+1. Working in teams of 3-4, outline what a Rails does to authenticate a user. You should include the entire process of enabling logging in and logging out. Expect that to include forms, requests from the client to various routes on the server, database or session interactions, and the server's responses.  
+
+  <details><summary>click for an example of how you might start signup</summary>
+  - Show signup form with username, password fields (could be part of another page or served at a separate /signup route).
+  - Send signup form details to server with POST /users.
+     - If username exists, redirect back to form with an error message.
+     - If username doesn't exist, create user in database.
+  ..._and so on_
+  </details>
+
+
+1. Which parts of your outline could be reused in any language or framework?
+
+
+
 
 ## Implementing Authentication
 
@@ -47,6 +98,15 @@ To give users the ability to sign up and log in to our site, we'll need:
 
 * Logout
   * Delete any saved user data in our session
+  
+
+## Why do we hash (and salt) passwords?
+
+In order to authenticate a user, we need to store their password in our database. This allows us to check that the user typed in the correct password when logging into our site.
+
+The downside is that if anyone ever got access to our database, they would also have access to all of our users' login information. We use a <a href="https://crackstation.net/hashing-security.htm#normalhashing" target="_blank">hashing algorithm</a> to avoid storing plain-text passwords in the database. We also use a <a href="https://crackstation.net/hashing-security.htm#salt" target="_blank">salt</a> to randomize the hashing algorithm, providing extra security against potential attacks.
+
+<img src="https://blog.engineyard.com/images/blog-images/password-security/hash-anatomy.png" width="80%">
 
 
 ## 1. Create a new Node/Express project.
@@ -589,3 +649,32 @@ Things don't always go right, and we need our apps to respond nicely when they d
   * Users should only be able to see `/profile` when logged in.
 
   **Hint:** You'll need to add some logic when calling `req.currentUser` to check if a logged-in user was found. You'll want to use `res.redirect` if a user tries to perform an unauthorized action.
+  
+  
+### Alternative Strategies
+
+There are a lot of libraries that help implement authentication.  For Node.js, Passport is very popular. For MEAN stack, Satellizer is a really common choice. Both of these libraries also handle strategies beyond password-based local authenticaiton. These other auth strategies inlcude OAuth 1 or OAuth 2, JWT, and other token-based schemes - you've seen these on the web managing "sign in with facebook", "sign in with github", etc.  
+
+#### Alternative Strategy Example: OAuth 2
+
+OAuth is technically a framework for authorization - allowing one application to access data from another application, on a user's behalf.
+
+In the real world, this might correspond to me walking into a bank and telling the teller you said I could have some of your money every month. We'd hope the teller would be skeptical. Maybe they'd ask that you come into the bank yourself and authorize me to withdraw some specific amount of money on a specific schedule.  They'd probably want a copy of my id so they could verify it was me coming back to withdraw money each time.    With OAuth, if everything checked out, the bank would give me a special token or passphrase that I could use to get money now and smooth out the transaction now and for some specified amount of time.
+
+On the web, a classic example is an application that aggregates information stored elsewhere. Say we have a user named Expo. Expo wonders: do the times I commit to github have any relationship to the times I'm most active on facebook?  If Expo wants to use a GitFace app that promises to answer that question, he might have to log into his facebook account and github account so the app can access and process his data.  
+
+Expo may not want to give GitFace his login information for both of those sites, so instead GitFace makes an arrangement with github and facebook. Let's consider facebook. When GitFace needs to access restricted data, it will link Expo to a special authorization page the app has set up with facebook.  This page is entirely controlled by facebook - and it relies on GitFace's facebook app id as well as the specific information GitFace is requesting.  Expo will enter in his information in a form on that page.
+
+GitFace never interacts directly with  Expo's login information.  If Expo is authenticated and agrees to share the resource GitFace needs, facebook's server sends back a response that redirects Expo back to the GitFace app.  The response also includes a special code specific to the data GitFace has requested. 
+
+In the background, GitFace then sends a new request to facebook - it needs to convert Expo's permission code into a token.  In order to get the code converted, GitFace also needs to securely identify itself to facebook by telling facebook its client secret.
+
+If the permission code and client secret check out, facbook issues a token that GitFace can use to access the materials approved by Expo. This usually has some expiration time so that the user doesn't have to re-authenticate on every step.  
+
+#### Resources
+
+- [Passport documentation](http://passportjs.org/docs)  
+- [Lesson & Lab: Express Auth with Passport](https://github.com/sf-wdi-31/express-passport-local-authentication/) for local authentication and twitter OAuth. Check the solution and twitter solution branches!  This lesson/lab is from WDI in DC, so their Express app structure is a little different from what you've seen before.  You'll find the routes listed inside the `config` directory. 
+
+- [Satellizer on GitHub (and documentation)](https://github.com/sahat/satellizer)
+- [Lesson & Lab: MEAN Auth with Satellizer](https://github.com/sf-wdi-31/angular-auth-satellizer)  This lesson/lab is from a previous SF cohort, so the app structure may be a little different than what we've seen.
