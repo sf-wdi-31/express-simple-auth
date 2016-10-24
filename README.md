@@ -4,7 +4,7 @@
 | :--- |
 | Implement a password **authentication** strategy with bcrypt |
 | Save a logged-in user's data to the session |
-| Implement routes for a user to login and logout |
+| Implement routes for a user to sign up, log in,  and log out |
 
 ## Authentication & Authorization
 
@@ -44,7 +44,7 @@ To give users the ability to sign up and log in to our site, we'll need:
   * Check that user's email exists in database
   * Authenticate that the password is correct for that user
   * Save that user's data in a session on our server
- 
+
 * Logout
   * Delete any saved user data in our session
 
@@ -61,7 +61,7 @@ To give users the ability to sign up and log in to our site, we'll need:
   $ npm install --save express body-parser mongoose ejs
   ```
 
-2. Open your project in Sublime, and set up your server in `server.js` with the following code snippet:
+2. Open your project in your text editor, and set up your server in `server.js` with the following code snippet:
 
   ```js
   // server.js
@@ -177,9 +177,9 @@ To give users the ability to sign up and log in to our site, we'll need:
 1. Set a submit listener on your signup form and use `$.post()` or `$.ajax()` to post the form data to `POST /signup`. (Consider using the `serialize()` method to quickly make a data string to send to the server. The serialized string will represent a data object: its keys will match the "name" attributes of your html form's inputs, and the each value in the object will be the value of the input field.)  Since the form is a DOM element, wrap your request in `$(document).ready(function(){ ... });`
 
   ```js
-  
+
   // scripts.js
-  
+
   // part of your code for this step:
     // select the form and serialize its data
     var signupData = $("#signup-form").serialize();
@@ -221,7 +221,7 @@ To give users the ability to sign up and log in to our site, we'll need:
   $ npm install --save bcrypt
   ```
 
-3. In Sublime, open `user.js` and require the dependencies your user schema and model will need, `mongoose` and `bcrypt`. 
+3. In your text editor, open `user.js` and require the dependencies your user schema and model will need, `mongoose` and `bcrypt`.
 
   ```js
   // user.js
@@ -246,7 +246,7 @@ To give users the ability to sign up and log in to our site, we'll need:
   });
   ```
 
-5. Continuing in `user.js`, define a new, more secure create method for our `User` model that stores a hashed and salted version of the user's password instead of their exact password. 
+5. Continuing in `user.js`, define a new, more secure create method for our `User` model that stores a hashed and salted version of the user's password instead of their exact password.
 
    **Note:** We use `userSchema.statics` to define <a href="http://mongoosejs.com/docs/guide#statics" target="_blank">static methods</a> for our schema, ones that we'll call from the model (like `User.createSecure`).  The other option, `userSchema.methods`, defines <a href="http://mongoosejs.com/docs/guide#methods" target="_blank">instance methods</a> for our schema, which we could call from an individual instance of a user (like `princessPeach.checkPassword`). Static methods can hold any functionality related to the collection, while instance methods define functionality related to individual documents in the collection. You can think of instance methods like prototype methods in OOP!
 
@@ -274,7 +274,7 @@ To give users the ability to sign up and log in to our site, we'll need:
    });
   };
   ```
-  
+
   **NOTE:** `bcrypt`'s `genSalt` or `genSaltSync` function provides the salt we'll use to randomize the hashing algorithm. The `Sync` at the end of the second method name says we want it to run synchronously. It will complete before the code moves on, so we don't need to give it a callback to say what to do when it finishes.
 
 6. Continuing in `user.js`, define a `User` model using your `userSchema` and export the model (so we can require it in other parts of our application).
@@ -288,8 +288,8 @@ To give users the ability to sign up and log in to our site, we'll need:
   // export user model
   module.exports = User;
   ```
-  
-  
+
+
   **Note:** Make sure all your static and instance methods come before defining and exporting the `User` model. Setting and exporting the `User` model should be the last pieces of logic in `user.js`, since they both rely on the version of the schema that exists when they're called. If you forget,  authentication methods might not get added to the model and exported.
 
 
@@ -361,47 +361,47 @@ To give users the ability to sign up and log in to our site, we'll need:
   </body>
   </html>
   ```
-  
+
 1. Create a `GET /login` route on your server that renders the login view.
 
 1. Add an "on submit" listener in your `scripts.js` file for the login form. When the login form is submitted, use `$.ajax` or `$.post` to send a request to a `/sessions` path with the user's login data.  As with signup, you can use `serialize()` to package and format the login data to send to the server.  We aren't storing our session data in the database, but we're using this route path because the mechanics of logging in will require us to update the session.
 
-  
+
 1. Set up a `POST /sessions` route in the server. Start by making it console log the login form data and send a message back as the response. To log a user in, we'll need to do more than that:
 
     * look the user up in the database with the email from the form
     * if a user is found, compare that user's passwordDigest with the password from the form
     * if the passwords match, save the user's data in our session
     * redirect somewhere - they should see site content, not json, as a response
-    
+
     We'll split these tasks between the main server code and the user schema.
-  
+
 1. Add a method to the user schema that checks whether a plain text password (like from a form) "matches" the passwordDigest stored in a specific user's database document. It will need to use bcrypt to `compare` or `compareSync` (synchronously compare) the two forms of the password.   We'll call this method once we have a specific user from the database, so put it on `userSchema.methods`.
 
   ```js
   // models/user.js
-  
+
   // compare password user enters with hashed password (`passwordDigest`)
   userSchema.methods.checkPassword = function (password) {
     // run hashing algorithm (with salt) on password user enters in order to compare with `passwordDigest`
     return bcrypt.compareSync(password, this.passwordDigest);
   };
-  
+
   ```
-  
+
 1. Add another method that does full authentication based on an email and a password. It will also take a callback, so when our server uses the `authenticate` method, the server code can specifiy what should happen next. This method will be called from the `User` model, since it will be looking up a user instance, not starting with one. It has to be added on `userSchema.statics`.
 
    ```js
-   
+
    // models/user.js
-   
+
    // authenticate user (when user logs in)
    userSchema.statics.authenticate = function (email, password, callback) {
      // find user by email entered at log in
      // remember `this` refers to the User for methods defined on userSchema.statics
      this.findOne({email: email}, function (err, foundUser) {
        console.log(foundUser);
- 
+
        // throw error if can't find user
        if (!foundUser) {
          console.log('No user with email ' + email);
@@ -414,7 +414,7 @@ To give users the ability to sign up and log in to our site, we'll need:
        }
      });
    };
- 
+
  ```
 
 
@@ -423,7 +423,7 @@ To give users the ability to sign up and log in to our site, we'll need:
   ```js
   // server.js
 
-  // authenticate the user 
+  // authenticate the user
   app.post('/sessions', function (req, res) {
     // call authenticate function to check if password user entered is correct
     User.authenticate(req.body.email, req.body.password, function (err, user) {
@@ -511,7 +511,7 @@ To give users the ability to sign up and log in to our site, we'll need:
   });
   ```
 
-1. Modify the `POST /sessions` route to redirect to the user's profile page using `res.redirect('/profile');` instead of its current response. 
+1. Modify the `POST /sessions` route to redirect to the user's profile page using `res.redirect('/profile');` instead of its current response.
 
 1. Test the effect of your modification in the browser. What do you see on the page and in the console?
 
@@ -569,8 +569,8 @@ Things don't always go right, and we need our apps to respond nicely when they d
     app.use('/', function (req, res, next) {    
       req.currentUser = function (callback) {
         User.findOne({_id: req.session.userId}, function (err, user) {
-          if (!user) { 
-            callback("No User Found", null) 
+          if (!user) {
+            callback("No User Found", null)
           } else {
             req.user = user;
             callback(null, user);
@@ -589,5 +589,3 @@ Things don't always go right, and we need our apps to respond nicely when they d
   * Users should only be able to see `/profile` when logged in.
 
   **Hint:** You'll need to add some logic when calling `req.currentUser` to check if a logged-in user was found. You'll want to use `res.redirect` if a user tries to perform an unauthorized action.
-
-

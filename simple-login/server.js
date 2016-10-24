@@ -24,13 +24,23 @@ app.use(session({
   cookie: { maxAge: 30 * 60 * 1000 }
 }));
 
+// splash page to show all users
+app.get('/', function (req, res) {
+  User.find({}, function(err, allUsers){
+    if(allUsers){
+      res.render('index.ejs', { users: allUsers });
+    } else {
+      res.status(500).send('server error');
+    }
+  });
+});
 
 // show the signup form
 app.get('/signup', function (req, res) {
   res.render('signup');
 });
 
-// create a user 
+// create a user
 app.post('/users', function (req, res) {
   console.log(req.body)
   User.createSecure(req.body.email, req.body.password, function (err, newUser) {
