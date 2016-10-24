@@ -69,8 +69,16 @@ What was the strategy we used to authenticate users with Ruby on Rails?
 
 
 
+### Why do we hash (and salt) passwords?
 
-## Implementing Authentication
+In order to authenticate a user, we need to store their password in our database. This allows us to check that the user typed in the correct password when logging into our site.
+
+The downside is that if anyone ever got access to our database, they would also have access to all of our users' login information. We use a <a href="https://crackstation.net/hashing-security.htm#normalhashing" target="_blank">hashing algorithm</a> to avoid storing plain-text passwords in the database. We also use a <a href="https://crackstation.net/hashing-security.htm#salt" target="_blank">salt</a> to randomize the hashing algorithm, providing extra security against potential attacks.
+
+<img src="https://blog.engineyard.com/images/blog-images/password-security/hash-anatomy.png" width="60%">
+
+
+### Implementing Authentication
 
 To give users the ability to sign up and log in to our site, we'll need:
 
@@ -82,7 +90,7 @@ To give users the ability to sign up and log in to our site, we'll need:
 * <a href="https://github.com/ncb000gt/node.bcrypt.js" target="_blank">**bcrypt:**</a> for hashing users' passwords
 
 
-###Here's the plan
+####Here's the plan
 
 * Signup
   * Make a signup form
@@ -100,16 +108,9 @@ To give users the ability to sign up and log in to our site, we'll need:
   * Delete any saved user data in our session
   
 
-## Why do we hash (and salt) passwords?
-
-In order to authenticate a user, we need to store their password in our database. This allows us to check that the user typed in the correct password when logging into our site.
-
-The downside is that if anyone ever got access to our database, they would also have access to all of our users' login information. We use a <a href="https://crackstation.net/hashing-security.htm#normalhashing" target="_blank">hashing algorithm</a> to avoid storing plain-text passwords in the database. We also use a <a href="https://crackstation.net/hashing-security.htm#salt" target="_blank">salt</a> to randomize the hashing algorithm, providing extra security against potential attacks.
-
-<img src="https://blog.engineyard.com/images/blog-images/password-security/hash-anatomy.png" width="80%">
 
 
-## 1. Create a new Node/Express project.
+### 1. Create a new Node/Express project.
 
 1. In the terminal, initialize a new Node project, and install `express` and `body-parser`.
 
@@ -164,7 +165,7 @@ The downside is that if anyone ever got access to our database, they would also 
   **Note:** Keep `nodemon` running the entire time you're developing your application. When you need to execute other terminal commands, press `command + T` to open a new terminal tab.
 
 
-## 2. Set up a signup view and route
+### 2. Set up a signup view and route
 
 1. In the terminal, make a `views` directory, a view called `signup.ejs`, and a view called `login.ejs`.
 
@@ -230,7 +231,7 @@ The downside is that if anyone ever got access to our database, they would also 
 4. Test that you can go to `localhost:3000/signup` and see your template rendered on the page.
 
 
-## 3. Submit your signup form to the server
+### 3. Submit your signup form to the server
 
 1. We've already told Express to serve a public folder with `app.use(express.static('/public'))`, so make a `public` folder and inside make a `scripts.js` file. Then link it with a `<script>` tag in your `signup.ejs`. Log something to the console to make sure they're connected.
 
@@ -266,7 +267,7 @@ The downside is that if anyone ever got access to our database, they would also 
 
 
 
-## 4. Create a User model and more secure signup method with `bycrpt`
+### 4. Create a User model and more secure signup method with `bycrpt`
 
 1. In the terminal, create a new directory for `models` and create a file for your `User` model.
 
@@ -376,7 +377,7 @@ The downside is that if anyone ever got access to our database, they would also 
 
 
 
-## 5. Logging In
+### 5. Logging In
 
 1. Flesh out your `login` view template (boilerplate below).
 
@@ -495,7 +496,7 @@ The downside is that if anyone ever got access to our database, they would also 
 1. Try to login with the credentials of the first user you created. Do you get the response you expected?
 
 
-## 6. Set up sessions and cookies to keep track of logged-in users.
+### 6. Set up sessions and cookies to keep track of logged-in users.
 
 1. In the Terminal, install `express-session`.
 
@@ -582,7 +583,7 @@ The downside is that if anyone ever got access to our database, they would also 
 
 1. We don't want new users to get a JSON or message response when they sign up, either. In fact, we probably want to log them in automatically. Modify the `POST /users` route to save a new user's id in the session and then redirect to the profile. Also modify your signup form to use `method` and `action`.
 
-## 7. Enable logout
+### 7. Enable logout
 
 1. On the profile view, add a logout link.
 
@@ -608,7 +609,7 @@ The downside is that if anyone ever got access to our database, they would also 
   });
   ```
 
-## 8. Error Handling
+### 8. Error Handling
 
 Things don't always go right, and we need our apps to respond nicely when they don't. Here are some strategies.
 
@@ -618,7 +619,7 @@ Things don't always go right, and we need our apps to respond nicely when they d
 1. Is there a way to refactor your client- or server-side code to generalize these two examples of error handling?
 
 
-## Custom Middleware Refactor (Stretch)
+### Custom Middleware Refactor for Authorization
 
 1. Let's refactor our lookup of the current user into some custom middleware to find the current user so we will always have it available.
 
@@ -671,7 +672,7 @@ In the background, GitFace then sends a new request to facebook - it needs to co
 
 If the permission code and client secret check out, facbook issues a token that GitFace can use to access the materials approved by Expo. This usually has some expiration time so that the user doesn't have to re-authenticate on every step.  
 
-#### Resources
+### Resources
 
 - [Passport documentation](http://passportjs.org/docs)  
 - [Lesson & Lab: Express Auth with Passport](https://github.com/sf-wdi-31/express-passport-local-authentication/) for local authentication and twitter OAuth. Check the solution and twitter solution branches!  This lesson/lab is from WDI in DC, so their Express app structure is a little different from what you've seen before.  You'll find the routes listed inside the `config` directory. 
