@@ -679,3 +679,5 @@ If the permission code and client secret check out, facbook issues a token that 
 
 - [Satellizer on GitHub (and documentation)](https://github.com/sahat/satellizer)
 - [Lesson & Lab: MEAN Auth with Satellizer](https://github.com/sf-wdi-31/angular-auth-satellizer)  This lesson/lab is from a previous SF cohort, so the app structure may be a little different than what we've seen.
+
+- [JSON Web Tokens documentation](https://jwt.io/)
