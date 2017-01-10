@@ -48,7 +48,7 @@ Password-based authentication is the heart of what we saw with Ruby on Rails, an
  
 
 
-
+<!--
 
 ### Review: Rails Strategy
 
@@ -68,6 +68,7 @@ What was the strategy we used to authenticate users with Ruby on Rails?
 1. Which parts of your outline could be reused in any language or framework?
 
 
+-->
 
 ### Why do we hash (and salt) passwords?
 
